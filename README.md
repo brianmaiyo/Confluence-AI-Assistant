@@ -121,4 +121,4 @@ MIT License - see <LICENSE> file.
 
 -----
 
-**Built with AWS serverless • [LinkedIn](https://linkedin.com/in/your-profile) • [Issues](https://github.com/[your-username]/confluence-ai-assistant/issues)**
+**Built with AWS serverless • [LinkedIn](https://www.linkedin.com/in/brianmaiyo/) • [Issues](https://github.com/brianmaiyo/confluence-ai-assistant/issues)**
