@@ -1,4 +1,4 @@
-# Confluence AI Assistant 🤖
+# Confluence AI Assistant
 
 Serverless AI assistant that syncs Confluence docs and provides intelligent Q&A with daily Slack digests.
 
