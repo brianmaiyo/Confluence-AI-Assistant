@@ -1,0 +1,242 @@
+# ===========================================
+# SECURITY - NEVER COMMIT THESE FILES
+# ===========================================
+
+# Environment variables containing secrets
+.env
+.env.*
+!.env.example
+.envrc
+
+# AWS credentials
+.aws/
+aws-credentials.json
+credentials.json
+
+# API keys and tokens
+*.key
+*.pem
+*.p12
+*.pfx
+secrets.json
+config.json
+
+# ===========================================
+# PYTHON
+# ===========================================
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# pyenv
+.python-version
+
+# ===========================================
+# AWS & SERVERLESS
+# ===========================================
+
+# AWS SAM
+.aws-sam/
+samconfig.toml
+
+# Serverless Framework
+.serverless/
+.serverless_plugins/
+
+# Terraform
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+terraform.tfvars
+terraform.tfvars.json
+
+# CloudFormation
+cloudformation-template-*
+
+# Lambda deployment packages
+*.zip
+lambda-deployment-*.zip
+function.zip
+
+# CDK
+cdk.out/
+.cdk.staging/
+
+# ===========================================
+# IDE & EDITORS
+# ===========================================
+
+# VSCode
+.vscode/
+!.vscode/settings.json.example
+!.vscode/launch.json.example
+!.vscode/extensions.json.example
+
+# PyCharm
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
+
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ===========================================
+# OPERATING SYSTEM
+# ===========================================
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+
+# ===========================================
+# LOGS & TEMPORARY FILES
+# ===========================================
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Temporary files
+*.tmp
+*.temp
+.tmp/
+temp/
+
+# ===========================================
+# DOCUMENTATION & DEVELOPMENT
+# ===========================================
+
+# Documentation build
+docs/_build/
+site/
+
+# Local development
+.local/
+local/
+dev/
+test-data/
+sample-data/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# ===========================================
+# PROJECT SPECIFIC
+# ===========================================
+
+# Confluence data exports
+confluence-export.json
+confluence-index.json
+confluence-backup-*.json
+
+# Test files
+test-confluence-data.json
+mock-data/
+
+# Development scripts output
+deployment-logs/
+sync-logs/
+
+# Local configuration overrides
+local-config.json
+dev-config.json

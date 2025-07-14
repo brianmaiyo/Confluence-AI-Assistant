@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confluence AI Assistant</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: slideUp 0.6s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2c3e50 0%, #3498db 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.1; }
+            50% { transform: scale(1.1); opacity: 0.2; }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-container {
+            height: 500px;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .message {
+            margin-bottom: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            text-align: right;
+        }
+
+        .message.ai {
+            text-align: left;
+        }
+
+        .message-bubble {
+            display: inline-block;
+            max-width: 80%;
+            padding: 15px 20px;
+            border-radius: 20px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            word-wrap: break-word;
+        }
+
+        .message.user .message-bubble {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.ai .message-bubble {
+            background: white;
+            color: #333;
+            border: 1px solid #e9ecef;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .sources {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .sources h4 {
+            font-size: 0.9rem;
+            color: #666;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .source-link {
+            display: block;
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+            text-decoration: none;
+            color: #495057;
+            font-size: 0.85rem;
+            transition: all 0.3s ease;
+        }
+
+        .source-link:hover {
+            background: #e9ecef;
+            border-color: #adb5bd;
+            transform: translateY(-1px);
+        }
+
+        .source-title {
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 4px;
+        }
+
+        .source-excerpt {
+            color: #6c757d;
+            font-size: 0.8rem;
+            line-height: 1.4;
+        }
+
+        .input-section {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .input-container {
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+            min-width: 0; /* Important for flex shrinking */
+        }
+
+        #queryInput {
+            width: 100%;
+            padding: 15px 20px;
+            border: 2px solid #e9ecef;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: all 0.3s ease;
+            resize: none;
+            min-height: 50px;
+            max-height: 120px;
+            font-family: inherit;
+            box-sizing: border-box; /* Ensure padding is included in width */
+        }
+
+        #queryInput:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        #sendButton {
+            padding: 15px 25px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 80px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #sendButton:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        #sendButton:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            height: 40px;
+        }
+
+        .loading-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #667eea;
+            animation: loading 1.4s infinite ease-in-out;
+        }
+
+        .loading-dot:nth-child(1) { animation-delay: -0.32s; }
+        .loading-dot:nth-child(2) { animation-delay: -0.16s; }
+
+        @keyframes loading {
+            0%, 80%, 100% { transform: scale(0.8); opacity: 0.5; }
+            40% { transform: scale(1.2); opacity: 1; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #495057;
+        }
+
+        .empty-state p {
+            font-size: 1rem;
+            line-height: 1.6;
+        }
+
+        .suggestions {
+            margin-top: 30px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .suggestion-btn {
+            background: rgba(102, 126, 234, 0.1);
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .suggestion-btn:hover {
+            background: rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        /* Responsive design improvements */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                margin: 0;
+                border-radius: 15px;
+                max-width: 100%;
+                width: 100%;
+            }
+
+            .header {
+                padding: 20px 15px;
+            }
+
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .header p {
+                font-size: 1rem;
+            }
+
+            .chat-container {
+                height: 350px;
+                padding: 15px;
+            }
+
+            .message-bubble {
+                max-width: 95%;
+                padding: 12px 16px;
+                font-size: 0.9rem;
+            }
+
+            .input-section {
+                padding: 15px;
+            }
+
+            .input-container {
+                flex-direction: row;
+                gap: 10px;
+            }
+
+            .input-wrapper {
+                flex: 1;
+                min-width: 0;
+            }
+
+            #queryInput {
+                padding: 12px 16px;
+                font-size: 0.95rem;
+                border-radius: 20px;
+                min-height: 44px;
+            }
+
+            #sendButton {
+                padding: 12px 18px;
+                border-radius: 20px;
+                min-width: 70px;
+                height: 44px;
+                font-size: 0.9rem;
+                flex-shrink: 0;
+            }
+
+            .suggestions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .suggestion-btn {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+                padding: 10px 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                border-radius: 10px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+            }
+
+            .chat-container {
+                height: 300px;
+                padding: 10px;
+            }
+
+            .input-section {
+                padding: 10px;
+            }
+
+            .input-container {
+                gap: 8px;
+            }
+
+            #queryInput {
+                padding: 10px 14px;
+                font-size: 0.9rem;
+                min-height: 40px;
+            }
+
+            #sendButton {
+                padding: 10px 14px;
+                min-width: 60px;
+                height: 40px;
+                font-size: 0.85rem;
+            }
+
+            .message-bubble {
+                padding: 10px 14px;
+                font-size: 0.85rem;
+            }
+
+            .empty-state {
+                padding: 40px 15px;
+            }
+
+            .empty-state h3 {
+                font-size: 1.3rem;
+            }
+
+            .empty-state p {
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 Confluence AI Assistant</h1>
+            <p>Ask me anything about your Confluence documentation</p>
+        </div>
+        
+        <div class="chat-container" id="chatContainer">
+            <div class="empty-state">
+                <h3>Welcome to your AI Assistant!</h3>
+                <p>I can help you find information from your Confluence documentation. Try asking me about any topic you're looking for.</p>
+                <div class="suggestions">
+                    <button class="suggestion-btn" onclick="sendSuggestion('What is Amazon CloudFront?')">What is Amazon CloudFront?</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('How do I configure AWS Lambda?')">How do I configure AWS Lambda?</button>
+                    <button class="suggestion-btn" onclick="sendSuggestion('Show me documentation about S3')">Show me documentation about S3</button>
+                    <button class="suggestion-btn" onclick="testConnection()" style="background: rgba(220, 53, 69, 0.1); border-color: rgba(220, 53, 69, 0.3); color: #dc3545;">🔧 Test Connection</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="input-section">
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <textarea id="queryInput" placeholder="Ask me anything about your Confluence docs..." rows="1"></textarea>
+                </div>
+                <button id="sendButton" onclick="sendQuery()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_GATEWAY_URL = 'YOUR_API_URL';
+        
+        let isLoading = false;
+        let messageCount = 0;
+
+        // Auto-resize textarea
+        const queryInput = document.getElementById('queryInput');
+        queryInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        // Send on Enter (but not Shift+Enter)
+        queryInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendQuery();
+            }
+        });
+
+        function sendSuggestion(query) {
+            queryInput.value = query;
+            sendQuery();
+        }
+
+        async function sendQuery() {
+            const query = queryInput.value.trim();
+            
+            if (!query || isLoading) return;
+            
+            isLoading = true;
+            messageCount++;
+            
+            // Hide empty state if this is the first message
+            if (messageCount === 1) {
+                document.querySelector('.empty-state').style.display = 'none';
+            }
+            
+            // Add user message
+            addMessage(query, 'user');
+            
+            // Clear input
+            queryInput.value = '';
+            queryInput.style.height = 'auto';
+            
+            // Update UI
+            updateSendButton();
+            
+            // Add loading message
+            const loadingId = addLoadingMessage();
+            
+            try {
+                console.log('Sending request to:', API_GATEWAY_URL);
+                console.log('Request body:', JSON.stringify({ query: query }));
+                
+                const response = await fetch(API_GATEWAY_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ query: query })
+                });
+                
+                console.log('Response status:', response.status);
+                console.log('Response headers:', response.headers);
+                
+                const data = await response.json();
+                console.log('Response data:', data);
+                
+                // Remove loading message
+                removeLoadingMessage(loadingId);
+                
+                if (response.ok) {
+                    // Add AI response
+                    addMessage(data.answer, 'ai', data.sources);
+                } else {
+                    addMessage(`Sorry, I encountered an error: ${data.error || data.message || 'Unknown error'}`, 'ai');
+                }
+                
+            } catch (error) {
+                removeLoadingMessage(loadingId);
+                console.error('Detailed error:', error);
+                console.error('Error name:', error.name);
+                console.error('Error message:', error.message);
+                
+                // More specific error messages
+                if (error.name === 'TypeError' && error.message.includes('Failed to fetch')) {
+                    addMessage(`❌ Connection Error: Unable to reach the AI service. This might be due to:
+                    <br>• Network connectivity issues
+                    <br>• CORS policy restrictions
+                    <br>• API Gateway not configured properly
+                    <br>• Lambda function not responding
+                    <br><br>Please check the browser console for more details.`, 'ai');
+                } else if (error.name === 'SyntaxError') {
+                    addMessage(`❌ Response Error: Received invalid response from the server. The API might not be returning proper JSON.`, 'ai');
+                } else {
+                    addMessage(`❌ Unexpected Error: ${error.message}`, 'ai');
+                }
+            }
+            
+            isLoading = false;
+            updateSendButton();
+        }
+
+        function addMessage(content, sender, sources = null) {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.innerHTML = content.replace(/\n/g, '<br>');
+            
+            messageDiv.appendChild(bubbleDiv);
+            
+            // Add sources if provided
+            if (sources && sources.length > 0) {
+                const sourcesDiv = document.createElement('div');
+                sourcesDiv.className = 'sources';
+                sourcesDiv.innerHTML = '<h4>📚 Sources:</h4>';
+                
+                sources.forEach(source => {
+                    const sourceLink = document.createElement('a');
+                    sourceLink.className = 'source-link';
+                    sourceLink.href = source.url;
+                    sourceLink.target = '_blank';
+                    sourceLink.innerHTML = `
+                        <div class="source-title">${source.title}</div>
+                        <div class="source-excerpt">${source.excerpt}</div>
+                    `;
+                    sourcesDiv.appendChild(sourceLink);
+                });
+                
+                bubbleDiv.appendChild(sourcesDiv);
+            }
+            
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function addLoadingMessage() {
+            const chatContainer = document.getElementById('chatContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = 'message ai';
+            messageDiv.id = 'loading-message-' + Date.now();
+            
+            const bubbleDiv = document.createElement('div');
+            bubbleDiv.className = 'message-bubble';
+            bubbleDiv.innerHTML = `
+                <div class="loading">
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                    <div class="loading-dot"></div>
+                </div>
+            `;
+            
+            messageDiv.appendChild(bubbleDiv);
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+            
+            return messageDiv.id;
+        }
+
+        function removeLoadingMessage(loadingId) {
+            const loadingMessage = document.getElementById(loadingId);
+            if (loadingMessage) {
+                loadingMessage.remove();
+            }
+        }
+
+        function updateSendButton() {
+            const sendButton = document.getElementById('sendButton');
+            sendButton.disabled = isLoading;
+            sendButton.textContent = isLoading ? 'Sending...' : 'Send';
+        }
+
+        // Test connection function
+        async function testConnection() {
+            console.log('Testing connection to API Gateway URL:', API_GATEWAY_URL);
+            
+            try {
+                console.log('Step 1: Testing API Gateway connectivity...');
+                const response = await fetch(API_GATEWAY_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                    },
+                    body: JSON.stringify({ query: 'test connection' })
+                });
+                
+                console.log('✅ API Gateway connectivity test result:');
+                console.log('Status:', response.status);
+                console.log('Status Text:', response.statusText);
+                console.log('Headers:', Object.fromEntries(response.headers.entries()));
+                
+                const data = await response.text();
+                console.log('Response body:', data);
+                
+                if (response.ok) {
+                    // Try to parse as JSON
+                    try {
+                        const jsonData = JSON.parse(data);
+                        console.log('✅ Response is valid JSON:', jsonData);
+                        alert('✅ Connection test completed successfully! API Gateway is working correctly.');
+                    } catch (jsonError) {
+                        console.log('⚠️ Response is not JSON:', data);
+                        alert('⚠️ Connection successful but response is not JSON. Check console for details.');
+                    }
+                } else {
+                    console.error('❌ API Gateway returned error:', response.status, response.statusText);
+                    alert(`❌ API Gateway Error: ${response.status} ${response.statusText}\n\nResponse: ${data}`);
+                }
+                
+            } catch (error) {
+                console.error('❌ Connection test failed:', error);
+                console.error('Error details:', {
+                    name: error.name,
+                    message: error.message,
+                    stack: error.stack
+                });
+                
+                // Check if it's a CORS or network issue
+                if (error.message.includes('Failed to fetch')) {
+                    alert(`❌ Connection Failed: This could be:
+                    
+1. CORS Issue: API Gateway not configured for cross-origin requests
+2. Network Issue: Firewall blocking the request
+3. API Gateway Issue: Gateway not properly configured
+4. Lambda Issue: Function not responding
+
+Please check:
+- API Gateway CORS settings
+- API Gateway deployment status
+- Lambda function is working
+- Your network allows outbound HTTPS requests`);
+                } else {
+                    alert(`❌ Connection test failed: ${error.message}`);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
